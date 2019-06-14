@@ -67,12 +67,13 @@ public:
      * \brief Calculate all dependent quantities once the independent
      *        quantities of the parameter object have been set.
      */
-    void finalize()
+    void finalizePlain()
     {
         RegularizedBrooksCoreyParams::finalize();
-#warning do something
-        krnEndPoint_ = 0.01;
-        krwEndPoint_ = 0.01;
+    }
+
+    void finalize()
+    {
     }
 
     /*!
@@ -93,14 +94,14 @@ public:
      * \brief Set the threshold saturation below which the capillary
      *        pressure is regularized.
      */
-    void setkrnEndPoint(Scalar value)
+    void setKrnEndPoint(Scalar value)
     { krnEndPoint_ = value; }
 
     /*!
      * \brief Set the threshold saturation below which the capillary
      *        pressure is regularized.
      */
-    void setkrwEndPoint(Scalar value)
+    void setKrwEndPoint(Scalar value)
     { krwEndPoint_ = value; }
 
 
