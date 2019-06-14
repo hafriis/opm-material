@@ -64,9 +64,11 @@ namespace Opm {
 template <class TraitsT, class ParamsT = RegularizedBrooksCoreyParamsVE<TraitsT> >
 class RegularizedBrooksCoreyVE : public TraitsT
 {
-    typedef Opm::RegularizedBrooksCorey<TraitsT, ParamsT> RegularizedBrooksCorey;
+
 
 public:
+    typedef Opm::RegularizedBrooksCorey<TraitsT, ParamsT> RegularizedBrooksCorey;
+
     typedef TraitsT Traits;
     typedef ParamsT Params;
     typedef typename Traits::Scalar Scalar;
@@ -118,6 +120,7 @@ public:
     template <class Container, class FluidState>
     static void capillaryPressures(Container& values, const Params& params, const FluidState& fs)
     {
+#warning TODO
         RegularizedBrooksCorey::capillaryPressures(values, params, fs);
     }
 
@@ -128,6 +131,7 @@ public:
     template <class Container, class FluidState>
     static void saturations(Container& values, const Params& params, const FluidState& fs)
     {
+#warning TODO: not really required!
         RegularizedBrooksCorey::saturations(values, params, fs);
     }
 
@@ -144,10 +148,11 @@ public:
     template <class Container, class FluidState>
     static void relativePermeabilities(Container& values, const Params& params, const FluidState& fs)
     {
+#warning TODO
+         Scalar krnEndPoint = params.krnEndPoint();
+         const auto& Sw = fs.saturation(Traits::wettingPhaseIdx);
          RegularizedBrooksCorey::relativePermeabilities(values, params, fs);
     }
-
-   
 };
 } // namespace Opm
 
