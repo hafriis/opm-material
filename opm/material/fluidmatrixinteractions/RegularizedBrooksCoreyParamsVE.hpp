@@ -54,6 +54,7 @@ public:
         : RegularizedBrooksCoreyParams()
         , krnEndPoint_(0.01)
         , krwEndPoint_(0.01)
+        , H_(0.0)
     {
     }
 
@@ -61,6 +62,7 @@ public:
         : RegularizedBrooksCoreyParams(entryPressure, lambda)
         , krnEndPoint_(0.01)
         , krwEndPoint_(0.01)
+        , H_(0.0)
     { finalize(); }
 
     /*!
@@ -104,12 +106,20 @@ public:
     void setKrwEndPoint(Scalar value)
     { krwEndPoint_ = value; }
 
+    //*********************HAF********************************************
+    Scalar getH_VE() const
+    { EnsureFinalized::check(); return H_; }
+    
+    void setH_VE(Scalar value)
+    { H_ = value; }
 
+    
 
 private:
 
     Scalar krnEndPoint_;
     Scalar krwEndPoint_;
+    Scalar H_;
 };
 } // namespace Opm
 
