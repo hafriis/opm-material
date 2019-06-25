@@ -48,7 +48,9 @@ class FluidStateExplicitSaturationModule
 {
 public:
     FluidStateExplicitSaturationModule()
-    { Valgrind::SetUndefined(saturation_); }
+    { Valgrind::SetUndefined(saturation_);
+      Valgrind::SetUndefined(Smax_);
+    }
 
     /*!
      * \brief The saturation of a fluid phase [-]
@@ -62,6 +64,12 @@ public:
     void setSaturation(unsigned phaseIdx, const Scalar& value)
     { saturation_[phaseIdx] = value; }
 
+    const Scalar& getSmax() const
+    { return Smax_; }
+
+    void setSmax(const Scalar& value)
+    { Smax_ = value; }
+
     /*!
      * \brief Retrieve all parameters from an arbitrary fluid
      *        state.
@@ -72,6 +80,7 @@ public:
         for (unsigned phaseIdx = 0; phaseIdx < numPhases; ++phaseIdx) {
             saturation_[phaseIdx] = Opm::decay<Scalar>(fs.saturation(phaseIdx));
         }
+        Smax_ = Opm::decay<Scalar>(fs.getSmax());
     }
 
     /*!
@@ -85,10 +94,12 @@ public:
     void checkDefined() const
     {
         Valgrind::CheckDefined(saturation_);
+        Valgrind::CheckDefined(Smax_);
     }
 
 protected:
     Scalar saturation_[numPhases];
+    Scalar Smax_;
 };
 
 /*!
