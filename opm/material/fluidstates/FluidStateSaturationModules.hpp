@@ -70,6 +70,7 @@ public:
     void setSmax(const Scalar& value)
     { Smax_ = value; }
 
+
     /*!
      * \brief Retrieve all parameters from an arbitrary fluid
      *        state.
