@@ -52,6 +52,8 @@ public:
 
     RegularizedBrooksCoreyParamsVE()
         : RegularizedBrooksCoreyParams()
+        , srw_(0.0)
+        , srn_(0.0)
         , krnEndPoint_(0.01)
         , krwEndPoint_(0.01)
         , H_(0.0)
@@ -60,6 +62,8 @@ public:
 
     RegularizedBrooksCoreyParamsVE(Scalar entryPressure, Scalar lambda)
         : RegularizedBrooksCoreyParams(entryPressure, lambda)
+        , srw_(0.0)
+        , srn_(0.0)
         , krnEndPoint_(0.01)
         , krwEndPoint_(0.01)
         , H_(0.0)
@@ -107,19 +111,69 @@ public:
     { krwEndPoint_ = value; }
 
     //*********************HAF********************************************
-    Scalar getH_VE() const
-    { EnsureFinalized::check(); return H_; }
+    void setResidualSaturation(const int phaseIdx, Scalar value)
+    {
+        if (phaseIdx == Traits::wettingPhaseIdx)
+        {
+            srw_ = value;
+        }
+        else if (phaseIdx == Traits::nonWettingPhaseIdx)
+        {
+            srn_ = value;
+        }
+    }
+
+    Scalar getResidualSaturation(const int phaseIdx)
+    {
+        Scalar ret = 0.0;
+        if (phaseIdx == Traits::wettingPhaseIdx)
+        {
+            ret = srw_;
+        }
+        else if (phaseIdx == Traits::nonWettingPhaseIdx)
+        {
+            ret = srn_;
+        }
+
+        return ret;
+    }
     
     void setH_VE(Scalar value)
     { H_ = value; }
 
-    
+    Scalar getH_VE() const
+    { EnsureFinalized::check(); return H_; }
+
+    Scalar compute_h_FromSandSmax(const Scalar S, const Scalar Smax) const
+    {
+        return (H_*(S*(1.0-srw_)-Smax*srn_))/((1.0-srw_)*(1.0-srw_-srn_));
+    }
+
+    Scalar compute_hmax_FromSandSmax(const Scalar S, const Scalar Smax) const
+    {
+        return (H_*Smax)/(1.0-srw_);
+    }
+
+    Scalar computeNonWettingPhaseRelPerm(const Scalar h, const Scalar hmax) const
+    {
+        return krnEndPoint_*(h/H_);
+    }
+
+    Scalar computeWettingPhaseRelPerm(const Scalar h, const Scalar hmax, const Scalar viscosity_w) const
+    {
+        return (((H_ - hmax)/H_) + (viscosity_w*krwEndPoint_)*((hmax-h)/H_));
+    }
 
 private:
 
+    Scalar srw_;
+    Scalar srn_;
     Scalar krnEndPoint_;
     Scalar krwEndPoint_;
     Scalar H_;
+    //Legge in permeabilitet!!!!!!!!!!!!!!!! Ting bør ikke endre seg i tiden!!!
+    //hva med tetthet???
+    //hva med viskositet pga. computeWettingPhaseRelPerm???
 };
 } // namespace Opm
 
