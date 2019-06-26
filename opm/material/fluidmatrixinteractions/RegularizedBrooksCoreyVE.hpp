@@ -120,8 +120,17 @@ public:
     template <class Container, class FluidState>
     static void capillaryPressures(Container& values, const Params& params, const FluidState& fs)
     {
-#warning TODO
+#warning TODO --- NOTE: We first treat the case with zero fine-scale capillary pressure.
         RegularizedBrooksCorey::capillaryPressures(values, params, fs);
+        Scalar density_n = fs.density(Traits::nonWettingPhaseIdx);//OK???
+        Scalar density_w = fs.density(Traits::wettingPhaseIdx);//OK???
+        Scalar g = 9.80665; //gravity acceleration
+        const auto& S = fs.saturation(Traits::nonWettingPhaseIdx);
+        Scalar Smax = fs.getSmax();
+        Scalar h = params.compute_h_FromSandSmax(S, Smax);
+
+        values[Traits::wettingPhaseIdx] = 0.0; // reference phase
+        values[Traits::nonWettingPhaseIdx] = (density_w - density_n)*g*h;
     }
 
     /*!
@@ -131,7 +140,7 @@ public:
     template <class Container, class FluidState>
     static void saturations(Container& values, const Params& params, const FluidState& fs)
     {
-#warning TODO: not really required!
+#warning TODO: not really required! --- What to do here in this case??? --- Should actually anything be done here???
         RegularizedBrooksCorey::saturations(values, params, fs);
     }
 
@@ -148,11 +157,21 @@ public:
     template <class Container, class FluidState>
     static void relativePermeabilities(Container& values, const Params& params, const FluidState& fs)
     {
-#warning TODO
-         Scalar krnEndPoint = params.krnEndPoint();
-         const auto& Sw = fs.saturation(Traits::wettingPhaseIdx);
-         RegularizedBrooksCorey::relativePermeabilities(values, params, fs);
+        //RegularizedBrooksCorey::relativePermeabilities(values, params, fs);
+        //values[Traits::wettingPhaseIdx] = krw<FluidState, Evaluation>(params, fs);
+        //values[Traits::nonWettingPhaseIdx] = krn<FluidState, Evaluation>(params, fs);
+        
+#warning TODO --- Seems OK now...
+         const auto& S = fs.saturation(Traits::nonWettingPhaseIdx);
+         Scalar Smax = fs.getSmax();
+         Scalar h = params.compute_h_FromSandSmax(S, Smax);
+         Scalar hmax = params.compute_hmax_FromSandSmax(S, Smax);
+         Scalar viscosity_w = fs.viscosity(Traits::wettingPhaseIdx);//OK???
+
+         values[Traits::wettingPhaseIdx] = params.computeWettingPhaseRelPerm(h, hmax, viscosity_w);
+         values[Traits::nonWettingPhaseIdx] = params.computeNonWettingPhaseRelPerm(h, hmax);
     }
+    
 };
 } // namespace Opm
 
