@@ -121,13 +121,14 @@ public:
     static void capillaryPressures(Container& values, const Params& params, const FluidState& fs)
     {
 #warning TODO --- NOTE: We first treat the case with zero fine-scale capillary pressure.
-        RegularizedBrooksCorey::capillaryPressures(values, params, fs);
+        //RegularizedBrooksCorey::capillaryPressures(values, params, fs);
         Scalar density_n = fs.density(Traits::nonWettingPhaseIdx);//OK???
         Scalar density_w = fs.density(Traits::wettingPhaseIdx);//OK???
         Scalar g = 9.80665; //gravity acceleration
         const auto& S = fs.saturation(Traits::nonWettingPhaseIdx);
         Scalar Smax = fs.getSmax();
-        Scalar h = params.compute_h_FromSandSmax(S, Smax);
+        Scalar H = fs.getH_VE();
+        Scalar h = params.compute_h_FromSandSmax(S, Smax, H);
 
         values[Traits::wettingPhaseIdx] = 0.0; // reference phase
         values[Traits::nonWettingPhaseIdx] = (density_w - density_n)*g*h;
@@ -140,7 +141,7 @@ public:
     template <class Container, class FluidState>
     static void saturations(Container& values, const Params& params, const FluidState& fs)
     {
-#warning TODO: not really required! --- What to do here in this case??? --- Should actually anything be done here???
+#warning TODO: not really required! --- What to do here in this case??? --- Should actually anything be done here??? --- Brukes IKKE av simulatoren!!!
         RegularizedBrooksCorey::saturations(values, params, fs);
     }
 
@@ -164,12 +165,13 @@ public:
 #warning TODO --- Seems OK now...
          const auto& S = fs.saturation(Traits::nonWettingPhaseIdx);
          Scalar Smax = fs.getSmax();
-         Scalar h = params.compute_h_FromSandSmax(S, Smax);
-         Scalar hmax = params.compute_hmax_FromSandSmax(S, Smax);
+         Scalar H = fs.getH_VE();
+         Scalar h = params.compute_h_FromSandSmax(S, Smax, H);
+         Scalar hmax = params.compute_hmax_FromSandSmax(S, Smax, H);
          Scalar viscosity_w = fs.viscosity(Traits::wettingPhaseIdx);//OK???
 
-         values[Traits::wettingPhaseIdx] = params.computeWettingPhaseRelPerm(h, hmax, viscosity_w);
-         values[Traits::nonWettingPhaseIdx] = params.computeNonWettingPhaseRelPerm(h, hmax);
+         values[Traits::wettingPhaseIdx] = params.computeWettingPhaseRelPerm(h, hmax, H, viscosity_w);
+         values[Traits::nonWettingPhaseIdx] = params.computeNonWettingPhaseRelPerm(h, hmax, H);
     }
     
 };
