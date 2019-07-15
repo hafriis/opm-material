@@ -56,7 +56,6 @@ public:
         , srn_(0.0)
         , krnEndPoint_(0.01)
         , krwEndPoint_(0.01)
-        , H_(0.0)
     {
     }
 
@@ -66,7 +65,6 @@ public:
         , srn_(0.0)
         , krnEndPoint_(0.01)
         , krwEndPoint_(0.01)
-        , H_(0.0)
     { finalize(); }
 
     /*!
@@ -137,31 +135,25 @@ public:
 
         return ret;
     }
-    
-    void setH_VE(Scalar value)
-    { H_ = value; }
 
-    Scalar getH_VE() const
-    { EnsureFinalized::check(); return H_; }
-
-    Scalar compute_h_FromSandSmax(const Scalar S, const Scalar Smax) const
+    Scalar compute_h_FromSandSmax(const Scalar& S, const Scalar& Smax, const Scalar& H) const
     {
-        return (H_*(S*(1.0-srw_)-Smax*srn_))/((1.0-srw_)*(1.0-srw_-srn_));
+        return (H*(S*(1.0-srw_)-Smax*srn_))/((1.0-srw_)*(1.0-srw_-srn_));
     }
 
-    Scalar compute_hmax_FromSandSmax(const Scalar S, const Scalar Smax) const
+    Scalar compute_hmax_FromSandSmax(const Scalar& S, const Scalar& Smax, const Scalar& H) const
     {
-        return (H_*Smax)/(1.0-srw_);
+        return (H*Smax)/(1.0-srw_);
     }
 
-    Scalar computeNonWettingPhaseRelPerm(const Scalar h, const Scalar hmax) const
+    Scalar computeNonWettingPhaseRelPerm(const Scalar& h, const Scalar& hmax, const Scalar& H) const
     {
-        return krnEndPoint_*(h/H_);
+        return krnEndPoint_*(h/H);
     }
 
-    Scalar computeWettingPhaseRelPerm(const Scalar h, const Scalar hmax, const Scalar viscosity_w) const
+    Scalar computeWettingPhaseRelPerm(const Scalar& h, const Scalar& hmax, const Scalar& H, const Scalar& viscosity_w) const
     {
-        return (((H_ - hmax)/H_) + (viscosity_w*krwEndPoint_)*((hmax-h)/H_));
+        return (((H - hmax)/H) + (viscosity_w*krwEndPoint_)*((hmax-h)/H));
     }
 
 private:
@@ -170,7 +162,6 @@ private:
     Scalar srn_;
     Scalar krnEndPoint_;
     Scalar krwEndPoint_;
-    Scalar H_;
     //Legge in permeabilitet!!!!!!!!!!!!!!!! Ting bør ikke endre seg i tiden!!!
     //hva med tetthet???
     //hva med viskositet pga. computeWettingPhaseRelPerm???
