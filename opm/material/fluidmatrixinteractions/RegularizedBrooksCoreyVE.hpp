@@ -122,16 +122,28 @@ public:
     {
 #warning TODO --- NOTE: We first treat the case with zero fine-scale capillary pressure.
         //RegularizedBrooksCorey::capillaryPressures(values, params, fs);
-        Scalar density_n = fs.density(Traits::nonWettingPhaseIdx);//OK???
-        Scalar density_w = fs.density(Traits::wettingPhaseIdx);//OK???
+
+        //NOTE: For testing without VE influence!
+        // /*
+        const auto& density_n = fs.density(Traits::nonWettingPhaseIdx);//OK???
+        const auto& density_w = fs.density(Traits::wettingPhaseIdx);//OK???
         Scalar g = 9.80665; //gravity acceleration
         const auto& S = fs.saturation(Traits::nonWettingPhaseIdx);
         Scalar Smax = fs.getSmax();
         Scalar H = fs.getH_VE();
         Scalar h = params.compute_h_FromSandSmax(S, Smax, H);
+        // */
+        
+        //HAF: Special coding for "BENCHMARK: CASE 2": VE 
+        Scalar dipIgrader = 1.0;
+        Scalar dipAngle = (3.14159265359/180)*dipIgrader;
+        //******************************************************
 
         values[Traits::wettingPhaseIdx] = 0.0; // reference phase
-        values[Traits::nonWettingPhaseIdx] = (density_w - density_n)*g*h;
+        //values[Traits::nonWettingPhaseIdx] = 0.0; //NOTE: For testing without VE influence!!!
+        values[Traits::nonWettingPhaseIdx] = -cos(dipAngle)*(density_n - density_w)*g*h;
+        //values[Traits::nonWettingPhaseIdx] = (500.0)*g*h; //JUST a TEST!!!
+        //std::cout << " Arild_w= " << density_w << " Arild_n= " << density_n << " h= " << h << std::endl;
     }
 
     /*!
@@ -158,20 +170,52 @@ public:
     template <class Container, class FluidState>
     static void relativePermeabilities(Container& values, const Params& params, const FluidState& fs)
     {
-        //RegularizedBrooksCorey::relativePermeabilities(values, params, fs);
-        //values[Traits::wettingPhaseIdx] = krw<FluidState, Evaluation>(params, fs);
-        //values[Traits::nonWettingPhaseIdx] = krn<FluidState, Evaluation>(params, fs);
+        //RegularizedBrooksCorey::relativePermeabilities(values, params, fs); //NOTE: For testing without VE influence!!!
+        //////values[Traits::wettingPhaseIdx] = krw<FluidState, Evaluation>(params, fs); //NOTE: For testing without VE influence!!!
+        //////values[Traits::nonWettingPhaseIdx] = krn<FluidState, Evaluation>(params, fs); //NOTE: For testing without VE influence!
         
 #warning TODO --- Seems OK now...
+        //NOTE: For testing without VE influence!
+         // /*
          const auto& S = fs.saturation(Traits::nonWettingPhaseIdx);
+         //We perfrom a regularization:
+         Scalar Sn = 0.0;
+         if (S <= 0.0)
+         {
+             Sn = 0.0;
+         }
+         else if (S >= 1.0)
+         {
+             Sn = 1.0;
+         }
+         else
+         {
+             Sn = S;
+         }
          Scalar Smax = fs.getSmax();
+         Scalar SmaxHelp = 0.0;
+         if (Smax <= 0.0)
+         {
+             SmaxHelp = 0.0;
+         }
+         else if (Smax >= 1.0)
+         {
+             SmaxHelp = 1.0;
+         }
+         else
+         {
+             SmaxHelp = Smax;
+         }
+         
          Scalar H = fs.getH_VE();
-         Scalar h = params.compute_h_FromSandSmax(S, Smax, H);
-         Scalar hmax = params.compute_hmax_FromSandSmax(S, Smax, H);
+         Scalar h = params.compute_h_FromSandSmax(Sn, SmaxHelp, H);
+         Scalar hmax = params.compute_hmax_FromSandSmax(Sn, SmaxHelp, H);
          Scalar viscosity_w = fs.viscosity(Traits::wettingPhaseIdx);//OK???
-
+         Scalar viscosity_n = fs.viscosity(Traits::nonWettingPhaseIdx);//OK???
+         //std::cout << " H= " << H << " Smax= " << Smax << " hmax= " << hmax << " h= " << h << std::endl;
          values[Traits::wettingPhaseIdx] = params.computeWettingPhaseRelPerm(h, hmax, H, viscosity_w);
-         values[Traits::nonWettingPhaseIdx] = params.computeNonWettingPhaseRelPerm(h, hmax, H);
+         values[Traits::nonWettingPhaseIdx] = params.computeNonWettingPhaseRelPerm(h, hmax, H, viscosity_n);
+         // */
     }
     
 };

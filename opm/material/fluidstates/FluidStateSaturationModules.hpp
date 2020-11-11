@@ -65,6 +65,7 @@ public:
     void setSaturation(unsigned phaseIdx, const Scalar& value)
     { saturation_[phaseIdx] = value; }
 
+    //***************HAF**************************************
     const Scalar& getSmax() const
     { return Smax_; }
 
@@ -76,7 +77,8 @@ public:
 
     void setH_VE(const Scalar& value)
     { H_ = value; }
-
+    //***************HAF**************************************
+    
 
     /*!
      * \brief Retrieve all parameters from an arbitrary fluid
@@ -109,8 +111,8 @@ public:
 
 protected:
     Scalar saturation_[numPhases];
-    Scalar Smax_;
-    Scalar H_;
+    Scalar Smax_; //HAF
+    Scalar H_; //HAF
 };
 
 /*!

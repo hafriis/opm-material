@@ -146,14 +146,35 @@ public:
         return (H*Smax)/(1.0-srw_);
     }
 
-    Scalar computeNonWettingPhaseRelPerm(const Scalar& h, const Scalar& hmax, const Scalar& H) const
+    Scalar computeNonWettingPhaseRelPerm(const Scalar& h, const Scalar& hmax, const Scalar& H, const Scalar& viscosity_n) const
     {
-        return krnEndPoint_*(h/H);
+        if (h > 0.0)
+        {
+            //std::cout << std::scientific << std::setprecision(15) << " krnEndPoint_= " << krnEndPoint_ << " h= " << h << " hmax= " << hmax << " relPermNW= " << krnEndPoint_*(1.0-srn_)*(h/H) << std::endl;
+            //std::cout << std::scientific << std::setprecision(15) << " h= " << h << " hmax= " << hmax << std::endl;
+        }
+        if (h > 0.0)
+        {
+            //return krnEndPoint_*(1.0-srw_)*(h/H); //ERROR???
+            return krnEndPoint_*(h/H);
+        }
+        else
+        {
+            return 0.0;
+        }
     }
 
     Scalar computeWettingPhaseRelPerm(const Scalar& h, const Scalar& hmax, const Scalar& H, const Scalar& viscosity_w) const
     {
-        return (((H - hmax)/H) + (viscosity_w*krwEndPoint_)*((hmax-h)/H));
+        //std::cout << std::scientific << std::setprecision(15) << " krwEndPoint_= " << krwEndPoint_ << " hmax= " << hmax << std::endl;
+
+        Scalar hHELP = 0.0;
+        if (h > 0.0) hHELP = h;
+        Scalar hmaxHELP = 0.0;
+        if (hmax > 0.0) hmaxHELP = hmax;
+        
+        // return (((H - hmaxHELP)/H) + (krwEndPoint_)*(1.0-srn_)*((hmaxHELP-hHELP)/H)); //ERROR???
+        return (((H - hmaxHELP)/H) + (krwEndPoint_)*((hmaxHELP-hHELP)/H));
     }
 
 private:
